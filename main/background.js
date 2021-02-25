@@ -22,14 +22,16 @@ if (isProd) {
 process.on("unhandledRejection", (err) => {
   //   process.exit(1);
 });
-const start = async (event) => {
+
+let server;
+const start = async (event, arg) => {
   if (!clientApp) {
     console.log("clientApp not initialize");
     return;
   }
 
-  const server = Hapi.server({
-    port: 3000,
+  server = Hapi.server({
+    port: arg.port,
     host: "0.0.0.0",
   });
 
@@ -51,17 +53,28 @@ const start = async (event) => {
 
   var interfaces = os.networkInterfaces();
   var addresses = [];
+  addresses.push("localhost:" + arg.port);
   for (var k in interfaces) {
     for (var k2 in interfaces[k]) {
       var address = interfaces[k][k2];
       if (address.family === "IPv4" && !address.internal) {
-        addresses.push(address.address);
+        addresses.push(address.address + ":" + arg.port);
       }
     }
   }
   event.reply("server-created", `Server running at: ${addresses}`);
   console.log("Server running at:", server.info.uri);
   console.log("Server running at:", addresses);
+};
+
+const stop = async (event) => {
+  if (!server) {
+    event.reply("server-stoped");
+    return;
+  }
+
+  await server.stop();
+  event.reply("server-stoped");
 };
 
 (async () => {
@@ -84,7 +97,11 @@ const start = async (event) => {
 })();
 
 ipcMain.on("start-server", (event, arg) => {
-  start(event);
+  start(event, arg);
+});
+
+ipcMain.on("stop-server", (event) => {
+  stop(event);
 });
 
 app.on("window-all-closed", () => {
