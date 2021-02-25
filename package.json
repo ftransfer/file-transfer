@@ -1,9 +1,10 @@
 {
   "private": true,
-  "name": "my-nextron-app",
-  "description": "My application description",
+  "name": "file-transfer",
+  "description": "transfer files with local necwork",
   "version": "1.0.0",
-  "author": "Yoshihide Shiono <shiono.yoshihide@gmail.com>",
+  "author": "File Transfer",
+  "license": "MIT",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
@@ -12,6 +13,7 @@
   },
   "dependencies": {
     "@hapi/hapi": "^20.1.0",
+    "@material-ui/icons": "^4.11.2",
     "electron-log": "^4.3.2",
     "electron-serve": "^1.0.0",
     "electron-store": "^6.0.1",
