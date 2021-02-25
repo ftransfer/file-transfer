@@ -1,4 +1,4 @@
-import { app, ipcMain } from "electron";
+import { app, ipcMain, dialog } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
 
@@ -44,7 +44,7 @@ const start = async (event, arg) => {
           request.raw.req,
           request.raw.res,
           `/${request.params.param}`,
-          request.query
+          { ...request.query, sourceDir: arg.sourceDir }
         )
       );
     },
@@ -63,8 +63,6 @@ const start = async (event, arg) => {
     }
   }
   event.reply("server-created", `Server running at: ${addresses}`);
-  console.log("Server running at:", server.info.uri);
-  console.log("Server running at:", addresses);
 };
 
 const stop = async (event) => {
@@ -77,16 +75,16 @@ const stop = async (event) => {
   event.reply("server-stoped");
 };
 
+let mainWindow;
+
 (async () => {
   await app.whenReady();
 
   clientApp = await client(!isProd);
-
-  const mainWindow = createWindow("main", {
+  mainWindow = createWindow("main", {
     width: 1000,
     height: 600,
   });
-
   if (isProd) {
     await mainWindow.loadURL("app://./home.html");
   } else {
@@ -102,6 +100,18 @@ ipcMain.on("start-server", (event, arg) => {
 
 ipcMain.on("stop-server", (event) => {
   stop(event);
+});
+
+ipcMain.on("select-dir", (event, arg) => {
+  let options = { properties: ["openDirectory"] };
+
+  dialog.showOpenDialog(options).then((result) => {
+    if (result.filePaths.length > 0)
+      event.reply("dir-selected", {
+        ...{ path: result.filePaths[0] },
+        arg,
+      });
+  });
 });
 
 app.on("window-all-closed", () => {

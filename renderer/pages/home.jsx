@@ -1,25 +1,20 @@
 import React, { useEffect } from "react";
 import Head from "next/head";
 import { makeStyles, createStyles, formatMs } from "@material-ui/core/styles";
+
 import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogActions from "@material-ui/core/DialogActions";
 import Typography from "@material-ui/core/Typography";
 import Link from "../components/Link";
 import Paper from "@material-ui/core/Paper";
-import Container from "@material-ui/core/Container";
-
-import { ipcRenderer } from "electron";
 import Box from "@material-ui/core/Box";
 import Grid from "@material-ui/core/Grid";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import TextField from "@material-ui/core/TextField";
 import Fab from "@material-ui/core/Fab";
+
 import CastIcon from "@material-ui/icons/Cast";
-import { log } from "electron-log";
+
+import { ipcRenderer, dialog } from "electron";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -52,6 +47,8 @@ const Home = () => {
   const [isServerCreated, setServerCreated] = React.useState(false);
   const [serverMessage, setServerMessage] = React.useState("");
   const [port, setPort] = React.useState(3000);
+  const [sourceDir, setSourceDir] = React.useState(null);
+  const [uploadDir, setUploadDir] = React.useState(null);
 
   useEffect(() => {
     ipcRenderer.on("server-created", (event, arg) => {
@@ -61,13 +58,27 @@ const Home = () => {
     ipcRenderer.on("server-stoped", (event, arg) => {
       setServerCreated(false);
     });
+    ipcRenderer.on("dir-selected", (event, arg) => {
+      if (arg.arg.target === "source") {
+        setSourceDir(arg.path);
+        if (uploadDir == null) setUploadDir(arg.path);
+      } else if (arg.arg.target === "upload") {
+        setUploadDir(arg.path);
+        if (sourceDir == null) setSourceDir(arg.path);
+      }
+    });
   });
+
+  function openDir(target) {
+    ipcRenderer.send("select-dir", { target });
+  }
 
   return (
     <React.Fragment>
       <Head>
         <title>File Transfer</title>
       </Head>
+
       <Box
         className={classes.root}
         display="flex"
@@ -100,13 +111,26 @@ const Home = () => {
               alignItems="center"
               style={{ width: "100%" }}
             >
-              <Button variant="outlined" style={{ marginRight: 16 }}>
+              <Button
+                variant="outlined"
+                style={{ marginRight: 16 }}
+                onClick={() => {
+                  openDir("source");
+                }}
+              >
                 Source
               </Button>
+
               <Breadcrumbs>
-                <Typography color="textPrimary">Breadcrumb</Typography>
-                <Typography color="textPrimary">Breadcrumb</Typography>
-                <Typography color="textPrimary">Breadcrumb</Typography>
+                {sourceDir == null ? (
+                  <Typography color="textPrimary">select source dir</Typography>
+                ) : (
+                  sourceDir.split("\\").map((v, i) => (
+                    <Typography key={i} color="textPrimary">
+                      {v}
+                    </Typography>
+                  ))
+                )}
               </Breadcrumbs>
             </Box>
             <Box
@@ -120,9 +144,15 @@ const Home = () => {
                 Uploaded
               </Button>
               <Breadcrumbs>
-                <Typography color="textPrimary">Breadcrumb</Typography>
-                <Typography color="textPrimary">Breadcrumb</Typography>
-                <Typography color="textPrimary">Breadcrumb</Typography>
+                {uploadDir == null ? (
+                  <Typography color="textPrimary">select source dir</Typography>
+                ) : (
+                  uploadDir.split("\\").map((v, i) => (
+                    <Typography key={i} color="textPrimary">
+                      {v}
+                    </Typography>
+                  ))
+                )}
               </Breadcrumbs>
             </Box>
 
@@ -140,6 +170,7 @@ const Home = () => {
                 style={{ width: 100 }}
                 variant="outlined"
                 type="number"
+                size="small"
                 onChange={(event) => {
                   setPort(event.target.value);
                 }}
@@ -154,7 +185,7 @@ const Home = () => {
                 onClick={() => {
                   ipcRenderer.send(
                     isServerCreated ? "stop-server" : "start-server",
-                    { port }
+                    { port, sourceDir, uploadDir }
                   );
                 }}
               >
