@@ -1,10 +1,8 @@
-// const Hapi = require("@hapi/hapi");
 const next = require("next");
 const Path = require("path");
 import { app } from "electron";
 
 function devClient() {
-  console.log("building client");
   const clientProject = Path.join(__dirname, "../", "client");
 
   const nextApp = next({
@@ -15,7 +13,6 @@ function devClient() {
 
   return new Promise((resolve, reject) => {
     nextApp.prepare().then(() => {
-      console.log("client created");
       resolve(nextApp);
     });
   });
@@ -30,7 +27,6 @@ function prodClient() {
   });
 
   return new Promise((resolve, reject) => {
-    // resolve(null);
     nextApp.prepare().then(() => {
       resolve(nextApp);
     });
