@@ -1,4 +1,4 @@
-const Hapi = require("@hapi/hapi");
+// const Hapi = require("@hapi/hapi");
 const next = require("next");
 const Path = require("path");
 import { app } from "electron";
@@ -22,7 +22,7 @@ function devClient() {
 }
 
 function prodClient() {
-  const clientProject = Path.join(app.getAppPath(), "client");
+  const clientProject = Path.join(app.getAppPath(), "");
   const nextApp = next({
     dev: false,
     dir: clientProject,
@@ -30,6 +30,7 @@ function prodClient() {
   });
 
   return new Promise((resolve, reject) => {
+    // resolve(null);
     nextApp.prepare().then(() => {
       resolve(nextApp);
     });

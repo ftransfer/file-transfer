@@ -59,7 +59,7 @@ const start = async (event) => {
       }
     }
   }
-  event.reply("server-created", `Server running at: ${server.info.uri}`);
+  event.reply("server-created", `Server running at: ${addresses}`);
   console.log("Server running at:", server.info.uri);
   console.log("Server running at:", addresses);
 };

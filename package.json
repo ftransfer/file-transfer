@@ -8,13 +8,11 @@
   "scripts": {
     "dev": "nextron",
     "build": "cd client && next build && cd .. && nextron build --win --x64",
-    "postinstall": "electron-builder install-app-deps",
-    "build-client": "cd client && next build && cd .. && copyfiles client/_client app",
-    "cp": "node main/build-client.js",
-    "asd": "cross-env NODE_ENV=production node server.js"
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@hapi/hapi": "^20.1.0",
+    "electron-log": "^4.3.2",
     "electron-serve": "^1.0.0",
     "electron-store": "^6.0.1",
     "electron-workers": "^1.10.3",
@@ -48,13 +46,12 @@
           "package.json",
           "app"
         ]
+      },
+      {
+        "from": "client/_client",
+        "to": "_client"
       }
     ],
-    "extraFiles": [
-      {
-        "from": "client",
-        "to": "client"
-      }
-    ]
+    "extraFiles": []
   }
 }
