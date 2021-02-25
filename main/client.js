@@ -37,6 +37,6 @@ function prodClient() {
   });
 }
 
-export default function client(dev) {
+export default function Client(dev) {
   return dev ? devClient() : prodClient();
 }
