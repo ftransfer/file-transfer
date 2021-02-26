@@ -92,6 +92,17 @@ const Home = () => {
     });
   }
 
+  function onPortChange(value) {
+    setPort(value.replace(/\D/g, "").substring(0, 4));
+  }
+
+  function fixPort(value) {
+    if (value.length < 4) value = (value + "0000").substring(0, 4);
+    const charArray = value.split("");
+    if (charArray[0] < 3) charArray[0] = 3;
+    setPort(charArray.join(""));
+  }
+
   const serverInfo = (
     <Fragment>
       <Paper className={classes.warningInfo} display>
@@ -217,8 +228,12 @@ const Home = () => {
             style={{ width: 80 }}
             variant="outlined"
             size="small"
+            disabled={!canChangeSettings}
             onChange={(event) => {
-              setPort(event.target.value);
+              onPortChange(event.target.value);
+            }}
+            onBlur={(event) => {
+              fixPort(event.target.value);
             }}
           />
         </Box>
