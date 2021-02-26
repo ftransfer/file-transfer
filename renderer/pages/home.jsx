@@ -115,7 +115,7 @@ const Home = () => {
       <Grid container justify="center">
         <Grid item xs={11} sm={9} md={7}>
           <Paper className={classes.serverInfoContainer}>
-            Server addresses:{}
+            Server addresses:
             {serverAddresses.map((v, i) => {
               let m = i === 0 ? " " : " or ";
               return (
