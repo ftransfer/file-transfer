@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect, useState, Fragment } from "react";
 import Head from "next/head";
 import { makeStyles, createStyles, formatMs } from "@material-ui/core/styles";
 
@@ -11,70 +11,135 @@ import Grid from "@material-ui/core/Grid";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import TextField from "@material-ui/core/TextField";
 import Fab from "@material-ui/core/Fab";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
-import CastIcon from "@material-ui/icons/Cast";
+import CastConnectedIcon from "@material-ui/icons/CastConnected";
+import ErrorIcon from "@material-ui/icons/Error";
 
-import { ipcRenderer, dialog } from "electron";
+import { ipcRenderer } from "electron";
+import DirectoryInfo from "~/components/DirectoryInfo";
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    root: {
-      width: "100vw",
-      height: "100vh",
-    },
-    paper: {
-      width: theme.spacing(90),
-      height: theme.spacing(50),
-      padding: theme.spacing(2),
-    },
-    title: {
-      width: "100%",
-    },
-    startButton: {
-      background: theme.palette.primary.main,
-      color: "#fff",
-    },
-    endButton: {
-      background: theme.palette.error.main,
-      color: "#fff",
-    },
-  })
-);
+import HomeStyle from "../styles/homeStyles";
 
 const Home = () => {
-  const classes = useStyles({});
-  const [open, setOpen] = React.useState(false);
-  const [isServerCreated, setServerCreated] = React.useState(false);
-  const [serverMessage, setServerMessage] = React.useState("");
-  const [port, setPort] = React.useState(3000);
-  const [sourceDir, setSourceDir] = React.useState(null);
-  const [uploadDir, setUploadDir] = React.useState(null);
+  const [open, setOpen] = useState(false);
+  const [isServerProsses, setServerProsses] = useState(false);
+  const [isServerCreated, setServerCreated] = useState(false);
+  const [canChangeSettings, setCanChangeSettings] = useState(true);
+  const [serverAddresses, setServerAddresses] = useState([]);
+  const [port, setPort] = useState(3000);
+  const [sourceDir, setSourceDir] = useState("...");
+  const [uploadDir, setUploadDir] = useState("...");
+
+  const classes = HomeStyle();
 
   useEffect(() => {
-    ipcRenderer.on("server-created", (event, arg) => {
-      setServerCreated(true);
-      setServerMessage(arg);
+    ipcRenderer.once("on-default-directory", (event, arg) => {
+      setSourceDir(arg.sourceDir);
+      setUploadDir(arg.uploadDir);
+      if (arg.isServerRunning) {
+        setServerAddresses(arg.addresses);
+        setServerCreated(true);
+        setCanChangeSettings(false);
+      } else setCanChangeSettings(true);
     });
-    ipcRenderer.on("server-stoped", (event, arg) => {
-      setServerCreated(false);
-    });
-    ipcRenderer.on("dir-selected", (event, arg) => {
-      if (arg.arg.target === "source") {
-        setSourceDir(arg.path);
-        if (uploadDir == null) setUploadDir(arg.path);
-      } else if (arg.arg.target === "upload") {
-        setUploadDir(arg.path);
-        if (sourceDir == null) setSourceDir(arg.path);
-      }
-    });
-  });
+    ipcRenderer.send("request-default-directory");
+  }, []);
 
   function openDir(target) {
+    ipcRenderer.once("dir-selected", (event, arg) => {
+      if (arg.arg.target === "source") {
+        setSourceDir(arg.path);
+      } else if (arg.arg.target === "upload") {
+        setUploadDir(arg.path);
+      }
+    });
     ipcRenderer.send("select-dir", { target });
   }
 
+  function startServer() {
+    setCanChangeSettings(false);
+    setServerProsses(true);
+    ipcRenderer.once("server-created", (event, arg) => {
+      setServerAddresses(arg);
+      setTimeout(() => {
+        setServerCreated(true);
+        setServerProsses(false);
+      }, 1000);
+    });
+
+    ipcRenderer.send("start-server", {
+      port,
+      sourceDir,
+      uploadDir,
+    });
+  }
+
+  function stopServer() {
+    setServerProsses(true);
+    ipcRenderer.once("server-stoped", (event, arg) => {
+      setTimeout(() => {
+        setServerCreated(false);
+        setServerProsses(false);
+        setCanChangeSettings(true);
+      }, 1000);
+    });
+
+    ipcRenderer.send("stop-server", {
+      port,
+      sourceDir,
+      uploadDir,
+    });
+  }
+
+  const serverInfo = (
+    <Fragment>
+      <Paper className={classes.warningInfo} display>
+        <Box display="flex" alignItems="center">
+          <ErrorIcon style={{ marginRight: 8 }} />
+          Make sure your device and other devices are connected to the same
+          network.
+        </Box>
+      </Paper>
+      <Grid container justify="center">
+        <Grid item xs={11} sm={9} md={7}>
+          <Paper className={classes.serverInfoContainer}>
+            Server addresses:{}
+            {serverAddresses.map((v, i) => {
+              let m = i === 0 ? " " : " or ";
+              return (
+                <Box component="span">
+                  {m}
+                  <Box component="span" fontWeight="fontWeightBold">
+                    {v}
+                  </Box>
+                </Box>
+              );
+            })}
+            <Typography variant="subtitle2" style={{ marginTop: 6 }}>
+              Other devices can acess your source directory by open their
+              browser and type address{" "}
+              {
+                <Box component="span" fontWeight="fontWeightBold">
+                  {
+                    serverAddresses[
+                      serverAddresses.length > 0
+                        ? serverAddresses.length - 1
+                        : ""
+                    ]
+                  }
+                </Box>
+              }{" "}
+              or one of server address above
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Fragment>
+  );
+
   return (
-    <React.Fragment>
+    <Fragment>
       <Head>
         <title>File Transfer</title>
       </Head>
@@ -83,7 +148,7 @@ const Home = () => {
         className={classes.root}
         display="flex"
         flexDirection="column"
-        justifyContent="center"
+        justifyContent="flex-start"
         alignItems="center"
       >
         <Box
@@ -96,112 +161,69 @@ const Home = () => {
             File Transfer
           </Typography>
         </Box>
-
-        <Paper className={classes.paper}>
-          <Box
-            display="flex"
-            flexDirection="column"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Box
-              display="flex"
-              flexDirection="row"
-              justifyContent="flex-start"
-              alignItems="center"
-              style={{ width: "100%" }}
+        <Grid container spacing={2} justify="center">
+          <DirectoryInfo
+            title="Source Directory"
+            path={sourceDir || ""}
+            target="source"
+            openDir={openDir}
+            canChange={canChangeSettings}
+            desc="The source directory you want to share. All child directories and
+              files are displayed."
+          />
+          <DirectoryInfo
+            title="Receiving Directory"
+            path={uploadDir || ""}
+            target="upload"
+            openDir={openDir}
+            canChange={canChangeSettings}
+            desc="The source directory you want to share. All child directories and
+              files are displayed."
+          />
+        </Grid>
+        <Box className={classes.startButtonContainer}>
+          {isServerProsses ? (
+            <CircularProgress />
+          ) : (
+            <Fab
+              variant="extended"
+              color="primary"
+              className={
+                isServerCreated ? classes.endButton : classes.startButton
+              }
+              onClick={() => {
+                isServerCreated ? stopServer() : startServer();
+              }}
             >
-              <Button
-                variant="outlined"
-                style={{ marginRight: 16 }}
-                onClick={() => {
-                  openDir("source");
-                }}
-              >
-                Source
-              </Button>
-
-              <Breadcrumbs>
-                {sourceDir == null ? (
-                  <Typography color="textPrimary">select source dir</Typography>
-                ) : (
-                  sourceDir.split("\\").map((v, i) => (
-                    <Typography key={i} color="textPrimary">
-                      {v}
-                    </Typography>
-                  ))
-                )}
-              </Breadcrumbs>
-            </Box>
-            <Box
-              display="flex"
-              flexDirection="row"
-              justifyContent="flex-start"
-              alignItems="center"
-              style={{ marginTop: 16, width: "100%" }}
-            >
-              <Button variant="outlined" style={{ marginRight: 16 }}>
-                Uploaded
-              </Button>
-              <Breadcrumbs>
-                {uploadDir == null ? (
-                  <Typography color="textPrimary">select source dir</Typography>
-                ) : (
-                  uploadDir.split("\\").map((v, i) => (
-                    <Typography key={i} color="textPrimary">
-                      {v}
-                    </Typography>
-                  ))
-                )}
-              </Breadcrumbs>
-            </Box>
-
-            <Box
-              display="flex"
-              flexDirection="row"
-              justifyContent="center"
-              alignItems="center"
-              style={{ marginTop: 16 }}
-            >
-              <TextField
-                id="outlined-basic"
-                label="port"
-                value={port}
-                style={{ width: 100 }}
-                variant="outlined"
-                type="number"
-                size="small"
-                onChange={(event) => {
-                  setPort(event.target.value);
-                }}
-              />
-            </Box>
-            <Box style={{ marginTop: 16 }}>
-              <Fab
-                variant="extended"
-                className={
-                  isServerCreated ? classes.endButton : classes.startButton
-                }
-                onClick={() => {
-                  ipcRenderer.send(
-                    isServerCreated ? "stop-server" : "start-server",
-                    { port, sourceDir, uploadDir }
-                  );
-                }}
-              >
-                <CastIcon style={{ marginRight: 12 }} />
-                {isServerCreated ? "Stop" : "Start"}
-              </Fab>
-            </Box>
-            <Box style={{ marginTop: 16 }}>
-              <Typography color="textPrimary" variant="h6" component="h6">
-                {isServerCreated ? serverMessage : ""}
-              </Typography>
-            </Box>
-          </Box>
-        </Paper>
+              <CastConnectedIcon style={{ marginRight: 12 }} />
+              {isServerCreated ? "Stop" : "Start"}
+            </Fab>
+          )}
+        </Box>
+        {isServerCreated ? serverInfo : null}
+        <Box
+          alignSelf="flex-start"
+          flexGrow={1}
+          display="flex"
+          flexDirection="column"
+          justifyContent="flex-end"
+          alignItems="center"
+          className={classes.portContainer}
+        >
+          <TextField
+            id="outlined-basic"
+            label="port"
+            value={port}
+            style={{ width: 80 }}
+            variant="outlined"
+            size="small"
+            onChange={(event) => {
+              setPort(event.target.value);
+            }}
+          />
+        </Box>
       </Box>
-    </React.Fragment>
+    </Fragment>
   );
 };
 
