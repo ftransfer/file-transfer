@@ -17,4 +17,7 @@ export const theme = createMuiTheme({
       default: "#303030",
     },
   },
+  typography: {
+    fontFamily: ["'Nunito'", "sans-serif"].join(","),
+  },
 });
