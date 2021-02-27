@@ -24,6 +24,8 @@ process.on("unhandledRejection", (err) => {
 });
 
 let server;
+let isServerRunning = false;
+let addresses = [];
 const start = async (event, arg) => {
   if (!clientApp) {
     console.log("clientApp not initialize");
@@ -49,10 +51,12 @@ const start = async (event, arg) => {
       );
     },
   });
+
   await server.start();
 
-  var interfaces = os.networkInterfaces();
-  var addresses = [];
+  isServerRunning = true;
+  let interfaces = os.networkInterfaces();
+  addresses = [];
   addresses.push("localhost:" + arg.port);
   for (var k in interfaces) {
     for (var k2 in interfaces[k]) {
@@ -62,16 +66,18 @@ const start = async (event, arg) => {
       }
     }
   }
-  event.reply("server-created", `Server running at: ${addresses}`);
+  event.reply("server-created", addresses);
 };
 
 const stop = async (event) => {
   if (!server) {
+    isServerRunning = false;
     event.reply("server-stoped");
     return;
   }
 
   await server.stop();
+  isServerRunning = false;
   event.reply("server-stoped");
 };
 
@@ -82,15 +88,17 @@ let mainWindow;
 
   clientApp = await client(!isProd);
   mainWindow = createWindow("main", {
-    width: 1000,
-    height: 600,
+    width: 1024,
+    height: 768,
+    backgroundColor: "#303030",
   });
+
   if (isProd) {
     await mainWindow.loadURL("app://./home.html");
   } else {
     const port = process.argv[2];
     await mainWindow.loadURL(`http://localhost:${port}/home`);
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   }
 })();
 
@@ -111,6 +119,17 @@ ipcMain.on("select-dir", (event, arg) => {
         ...{ path: result.filePaths[0] },
         arg,
       });
+  });
+});
+
+ipcMain.on("request-default-directory", (event, arg) => {
+  let docUserDir = app.getPath("documents");
+  let downloadUserDir = app.getPath("downloads");
+  event.reply("on-default-directory", {
+    sourceDir: docUserDir,
+    uploadDir: downloadUserDir,
+    isServerRunning,
+    addresses,
   });
 });
 
