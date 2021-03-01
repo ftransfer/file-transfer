@@ -19,6 +19,8 @@ import ErrorIcon from "@material-ui/icons/Error";
 import { ipcRenderer } from "electron";
 import DirectoryInfo from "~/components/DirectoryInfo";
 
+import { Namming } from "~/helpers/index";
+
 import HomeStyle from "../styles/homeStyles";
 
 const Home = () => {
@@ -34,7 +36,7 @@ const Home = () => {
   const classes = HomeStyle();
 
   useEffect(() => {
-    ipcRenderer.once("on-default-directory", (event, arg) => {
+    ipcRenderer.once(Namming.ON_DEFAULT_DIR, (event, arg) => {
       setSourceDir(arg.sourceDir);
       setUploadDir(arg.uploadDir);
       if (arg.isServerRunning) {
@@ -43,24 +45,24 @@ const Home = () => {
         setCanChangeSettings(false);
       } else setCanChangeSettings(true);
     });
-    ipcRenderer.send("request-default-directory");
+    ipcRenderer.send(Namming.REQ_DEFAULT_DIR);
   }, []);
 
   function openDir(target) {
-    ipcRenderer.once("dir-selected", (event, arg) => {
+    ipcRenderer.once(Namming.DIR_SELECTED, (event, arg) => {
       if (arg.arg.target === "source") {
         setSourceDir(arg.path);
       } else if (arg.arg.target === "upload") {
         setUploadDir(arg.path);
       }
     });
-    ipcRenderer.send("select-dir", { target });
+    ipcRenderer.send(Namming.SELECT_DIR, { target });
   }
 
   function startServer() {
     setCanChangeSettings(false);
     setServerProsses(true);
-    ipcRenderer.once("server-created", (event, arg) => {
+    ipcRenderer.once(Namming.SERVER_CREATED, (event, arg) => {
       setServerAddresses(arg);
       setTimeout(() => {
         setServerCreated(true);
@@ -68,7 +70,7 @@ const Home = () => {
       }, 1000);
     });
 
-    ipcRenderer.send("start-server", {
+    ipcRenderer.send(Namming.START_SERVER, {
       port,
       sourceDir,
       uploadDir,
@@ -77,7 +79,7 @@ const Home = () => {
 
   function stopServer() {
     setServerProsses(true);
-    ipcRenderer.once("server-stoped", (event, arg) => {
+    ipcRenderer.once(Namming.SERVER_STOPED, (event, arg) => {
       setTimeout(() => {
         setServerCreated(false);
         setServerProsses(false);
@@ -85,7 +87,7 @@ const Home = () => {
       }, 1000);
     });
 
-    ipcRenderer.send("stop-server", {
+    ipcRenderer.send(Namming.STOP_SERVER, {
       port,
       sourceDir,
       uploadDir,

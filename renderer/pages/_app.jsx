@@ -1,14 +1,14 @@
-import React from 'react';
-import Head from 'next/head';
-import { ThemeProvider } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { theme } from '../lib/theme';
+import React from "react";
+import Head from "next/head";
+import { ThemeProvider } from "@material-ui/core/styles";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import { theme } from "../../theme/theme";
 
-export default function(props) {
+export default function App(props) {
   const { Component, pageProps } = props;
 
   React.useEffect(() => {
-    const jssStyles = document.querySelector('#jss-server-side');
+    const jssStyles = document.querySelector("#jss-server-side");
     if (jssStyles) {
       jssStyles.parentElement.removeChild(jssStyles);
     }
@@ -18,7 +18,10 @@ export default function(props) {
     <React.Fragment>
       <Head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+        <meta
+          name="viewport"
+          content="minimum-scale=1, initial-scale=1, width=device-width"
+        />
         <title>with-javascript-material-ui</title>
       </Head>
       <ThemeProvider theme={theme}>

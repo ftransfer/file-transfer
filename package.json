@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "file-transfer",
-  "description": "transfer files with local necwork",
+  "description": "transfer files with local network",
   "version": "1.0.0",
   "author": "File Transfer",
   "license": "MIT",
