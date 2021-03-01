@@ -152,95 +152,89 @@ const Home = () => {
   );
 
   return (
-    <Fragment>
-      <Head>
-        <title>File Transfer</title>
-      </Head>
-
+    <Box
+      className={classes.root}
+      display="flex"
+      flexDirection="column"
+      justifyContent="flex-start"
+      alignItems="center"
+    >
       <Box
-        className={classes.root}
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        className={classes.title}
+      >
+        <Typography variant="h3" component="h1">
+          File Transfer
+        </Typography>
+      </Box>
+      <Grid container spacing={2} justify="center">
+        <DirectoryInfo
+          title="Source Directory"
+          path={sourceDir || ""}
+          target="source"
+          openDir={openDir}
+          canChange={canChangeSettings}
+          desc="The source directory you want to share. All child directories and
+              files are displayed."
+        />
+        <DirectoryInfo
+          title="Receiving Directory"
+          path={uploadDir || ""}
+          target="upload"
+          openDir={openDir}
+          canChange={canChangeSettings}
+          desc="The source directory you want to share. All child directories and
+              files are displayed."
+        />
+      </Grid>
+      <Box className={classes.startButtonContainer}>
+        {isServerProsses ? (
+          <CircularProgress />
+        ) : (
+          <Fab
+            variant="extended"
+            color="primary"
+            className={
+              isServerCreated ? classes.endButton : classes.startButton
+            }
+            onClick={() => {
+              isServerCreated ? stopServer() : startServer();
+            }}
+          >
+            <CastConnectedIcon style={{ marginRight: 12 }} />
+            {isServerCreated ? "Stop" : "Start"}
+          </Fab>
+        )}
+      </Box>
+      {isServerCreated ? serverInfo : null}
+      <Box
+        alignSelf="flex-start"
+        flexGrow={1}
         display="flex"
         flexDirection="column"
-        justifyContent="flex-start"
+        justifyContent="flex-end"
         alignItems="center"
+        className={classes.portContainer}
       >
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          className={classes.title}
-        >
-          <Typography variant="h3" component="h1">
-            File Transfer
-          </Typography>
-        </Box>
-        <Grid container spacing={2} justify="center">
-          <DirectoryInfo
-            title="Source Directory"
-            path={sourceDir || ""}
-            target="source"
-            openDir={openDir}
-            canChange={canChangeSettings}
-            desc="The source directory you want to share. All child directories and
-              files are displayed."
-          />
-          <DirectoryInfo
-            title="Receiving Directory"
-            path={uploadDir || ""}
-            target="upload"
-            openDir={openDir}
-            canChange={canChangeSettings}
-            desc="The source directory you want to share. All child directories and
-              files are displayed."
-          />
-        </Grid>
-        <Box className={classes.startButtonContainer}>
-          {isServerProsses ? (
-            <CircularProgress />
-          ) : (
-            <Fab
-              variant="extended"
-              color="primary"
-              className={
-                isServerCreated ? classes.endButton : classes.startButton
-              }
-              onClick={() => {
-                isServerCreated ? stopServer() : startServer();
-              }}
-            >
-              <CastConnectedIcon style={{ marginRight: 12 }} />
-              {isServerCreated ? "Stop" : "Start"}
-            </Fab>
-          )}
-        </Box>
-        {isServerCreated ? serverInfo : null}
-        <Box
-          alignSelf="flex-start"
-          flexGrow={1}
-          display="flex"
-          flexDirection="column"
-          justifyContent="flex-end"
-          alignItems="center"
-          className={classes.portContainer}
-        >
-          <TextField
-            id="outlined-basic"
-            label="port"
-            value={port}
-            style={{ width: 80 }}
-            variant="outlined"
-            size="small"
-            disabled={!canChangeSettings}
-            onChange={(event) => {
-              onPortChange(event.target.value);
-            }}
-            onBlur={(event) => {
-              fixPort(event.target.value);
-            }}
-          />
-        </Box>
+        <TextField
+          id="outlined-basic"
+          label="port"
+          value={port}
+          style={{ width: 80 }}
+          variant="outlined"
+          size="small"
+          disabled={!canChangeSettings}
+          onChange={(event) => {
+            onPortChange(event.target.value);
+          }}
+          onBlur={(event) => {
+            fixPort(event.target.value);
+          }}
+        />
       </Box>
-    </Fragment>
+    </Box>
   );
 };
 
