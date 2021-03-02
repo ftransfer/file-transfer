@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "nextron",
     "build": "cd client && next build && cd .. && nextron build --win --x64",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "client": "node client/devServer.js"
   },
   "dependencies": {
     "@hapi/hapi": "^20.1.0",
@@ -23,7 +24,8 @@
     "next": "^10.0.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-middle-ellipsis": "^1.1.0"
+    "react-middle-ellipsis": "^1.1.0",
+    "react-resize-layout": "^0.2.3"
   },
   "devDependencies": {
     "@material-ui/core": "^4.11.1",
