@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@hapi/hapi": "^20.1.0",
+    "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
+    "@material-ui/styles": "^4.11.3",
     "clsx": "^1.1.1",
     "electron-log": "^4.3.2",
     "electron-serve": "^1.0.0",
@@ -28,7 +30,6 @@
     "react-resize-layout": "^0.2.3"
   },
   "devDependencies": {
-    "@material-ui/core": "^4.11.1",
     "copy-dir": "^1.3.0",
     "copy-webpack-plugin": "^7.0.0",
     "copyfiles": "^2.4.1",
@@ -58,6 +59,7 @@
         "to": "_client"
       }
     ],
-    "extraFiles": []
+    "extraFiles": [],
+    "extraResources": []
   }
 }

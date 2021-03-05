@@ -1,8 +1,9 @@
 import { ipcMain } from "electron";
 import Hapi from "@hapi/hapi";
 import os from "os";
-import Client from "./Client";
+import log from "electron-log";
 
+import Client from "./Client";
 import { Namming } from "../helpers/ipc";
 
 class ClientService {
@@ -16,11 +17,12 @@ class ClientService {
 
   async createClient() {
     this.clientApp = await Client(!this.isProd);
+    return this.clientApp;
   }
 
   async start(event, arg) {
     if (!this.clientApp) {
-      console.log("clientApp not initialize");
+      log.error("clientApp not initialize");
       return;
     }
 
@@ -33,14 +35,19 @@ class ClientService {
       method: "GET",
       path: "/{param*}",
       handler: async (request, h) => {
-        return h.response(
-          await this.clientApp.render(
-            request.raw.req,
-            request.raw.res,
-            `/${request.params.param}`,
-            { ...request.query, sourceDir: arg.sourceDir }
-          )
-        );
+        try {
+          return h.response(
+            await this.clientApp.render(
+              request.raw.req,
+              request.raw.res,
+              `/${request.params.param}`,
+              { ...request.query, sourceDir: arg.sourceDir }
+            )
+          );
+        } catch (error) {
+          log.info("error building page: " + error);
+          return h.response("Internal Server Error");
+        }
       },
     });
 
