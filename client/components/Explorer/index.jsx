@@ -10,7 +10,7 @@ export default function Explorer(props) {
 
   useEffect(async () => {
     const f = await getApi(window.location.origin).get(
-      `/files${props.pathFile}`
+      `/files${props.pathFile.cutPath}`
     );
     setFiles(f.data);
   }, [props.pathFile]);

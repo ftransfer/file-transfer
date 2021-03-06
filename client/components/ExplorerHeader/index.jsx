@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
@@ -10,6 +11,21 @@ import Style from "./Style";
 
 export default function ExplorerHeader(props) {
   const classes = Style();
+  const [paths, setPaths] = useState([]);
+
+  useEffect(() => {
+    setPaths(props.pathFile.cutPath.split("\\"));
+  }, [props.pathFile]);
+
+  function changePath(indexAt) {
+    const indexOf = props.pathFile.realPath.indexOf(props.pathFile.cutPath);
+    const base = props.pathFile.realPath.substring(0, indexOf);
+    const pa = [];
+    for (let k = 0; k <= indexAt; k++) {
+      pa.push(paths[k]);
+    }
+    props.changePath(base + pa.join("\\"));
+  }
 
   return (
     <Box display="flex" className={classes.root}>
@@ -24,11 +40,13 @@ export default function ExplorerHeader(props) {
             color="textPrimary"
             variant="h6"
             className={classes.breads}
-            onClick={() => {}}
+            onClick={() => {
+              props.changePath("");
+            }}
           >
             ~
           </Link>
-          {props.pathFile.split("\\").map((v) => {
+          {paths.map((v, i) => {
             if (v.length > 0)
               return (
                 <Link
@@ -36,7 +54,9 @@ export default function ExplorerHeader(props) {
                   color="textPrimary"
                   variant="h6"
                   className={classes.breads}
-                  onClick={() => {}}
+                  onClick={() => {
+                    changePath(i);
+                  }}
                 >
                   {v}
                 </Link>

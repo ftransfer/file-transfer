@@ -8,11 +8,11 @@ import Box from "@material-ui/core/Box";
 
 function Mainlayout(props) {
   const classes = Style();
-  const [pathFile, setPathFile] = useState("");
+  const [pathFile, setPathFile] = useState({ realPath: "", cutPath: "" });
 
   function changePath(path) {
     const cPath = path.substring(props.sourceDir.length);
-    setPathFile(cPath);
+    setPathFile({ realPath: path, cutPath: cPath });
   }
   return (
     <Fragment>
