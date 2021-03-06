@@ -9,7 +9,7 @@ import { Namming } from "../helpers/ipc";
 import fs from "fs";
 import path from "path";
 
-import { readDirTree } from "../../lib/tree-directory";
+import { readDirTree, readChildren } from "../../lib/tree-directory";
 
 class ClientService {
   constructor(isProd) {
@@ -58,7 +58,8 @@ class ClientService {
         if (request.params.param) dirPath = request.params.param.split("/");
         const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
         console.log(finalpath);
-        const files = fs.readdirSync(finalpath);
+        // const files = fs.readdirSync(finalpath);
+        const files = readChildren(fs, path, finalpath, { depth: 1 });
 
         return files;
       },

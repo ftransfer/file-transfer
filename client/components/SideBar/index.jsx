@@ -42,7 +42,7 @@ function ItemWithChild({ child, changePath, fullPath }) {
         }}
       >
         <ListItemIcon className={classes.icon}>
-          <FolderIcon />
+          <FolderIcon style={{ color: "#ffb74d" }} />
         </ListItemIcon>
         <ListItemText primary={child.name} />
         <ListItemSecondaryAction>
@@ -92,7 +92,7 @@ function Item({ child, changePath, fullPath }) {
       }}
     >
       <ListItemIcon className={classes.icon}>
-        <FolderIcon />
+        <FolderIcon style={{ color: "#ffb74d" }} />
       </ListItemIcon>
       <ListItemText primary={child.name} />
     </ListItem>

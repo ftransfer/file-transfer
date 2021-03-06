@@ -11,6 +11,9 @@ const Style = makeStyles((theme) => ({
     verticalAlign: "middle",
     display: "inline-flex",
   },
+  icon: {
+    marginRight: theme.spacing(1),
+  },
 }));
 
 export default Style;

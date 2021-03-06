@@ -12,6 +12,10 @@ export default function Explorer(props) {
     const f = await getApi(window.location.origin).get(
       `/files${props.pathFile.cutPath}`
     );
+    f.data.sort(
+      (a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name)
+    );
+    console.log(f.data);
     setFiles(f.data);
   }, [props.pathFile]);
 

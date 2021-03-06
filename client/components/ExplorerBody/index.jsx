@@ -7,6 +7,10 @@ import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import dayjs from "dayjs";
+import prettyBytes from "pretty-bytes";
+
+import FileIcon from "~/components/FileIcon";
 
 import DescriptionIcon from "@material-ui/icons/Description";
 
@@ -43,22 +47,33 @@ export default function ExplorerBody(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
+            {props.files.map((row) => (
               <TableRow key={row.name}>
                 <TableCell component="th" scope="row">
                   <Typography className={classes.fileName} variant="body1">
-                    <DescriptionIcon />
+                    <FileIcon
+                      ext={
+                        row.extension ? row.extension.substring(1) : row.type
+                      }
+                      className={classes.icon}
+                    />
                     {row.name}
                   </Typography>
                 </TableCell>
                 <TableCell align="left">
-                  <Typography variant="body2">{row.date}</Typography>
+                  <Typography variant="body2">
+                    {dayjs(row.modified).format("MMM, DD YYYY hh:ss")}
+                  </Typography>
                 </TableCell>
                 <TableCell align="left">
-                  <Typography variant="body2">{row.type}</Typography>
+                  <Typography variant="body2">
+                    {row.extension ? row.extension.substring(1) : row.type}
+                  </Typography>
                 </TableCell>
                 <TableCell align="left">
-                  <Typography variant="body2">{row.size} </Typography>
+                  <Typography variant="body2">
+                    {row.size ? prettyBytes(Number(row.size)) : ""}
+                  </Typography>
                 </TableCell>
               </TableRow>
             ))}
