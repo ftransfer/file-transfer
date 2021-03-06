@@ -24,15 +24,7 @@ function isRegExp(regExp) {
   return typeof regExp === "object" && regExp.constructor == RegExp;
 }
 
-function directoryTree(
-  FS,
-  PATH,
-  path,
-  options,
-  onEachFile,
-  onEachDirectory,
-  curDepth = 0
-) {
+function directoryTree(FS, PATH, path, options, onEachFile, onEachDirectory) {
   const name = PATH.basename(path);
   path = options && options.normalizePath ? normalizePath(path) : path;
   const item = { path, name };
@@ -79,24 +71,19 @@ function directoryTree(
         item[attribute] = stats[attribute];
       });
     }
-
-    if (curDepth < options.depth) {
-      item.children = dirData
-        .map((child) =>
-          directoryTree(
-            FS,
-            PATH,
-            PATH.join(path, child),
-            options,
-            onEachFile,
-            onEachDirectory,
-            curDepth + 1
-          )
+    item.children = dirData
+      .map((child) =>
+        directoryTree(
+          FS,
+          PATH,
+          PATH.join(path, child),
+          options,
+          onEachFile,
+          onEachDirectory
         )
-        .filter((e) => !!e);
-    }
-    // item.size = item.children.reduce((prev, cur) => prev + cur.size, 0);
-    item.size = "";
+      )
+      .filter((e) => !!e);
+    item.size = item.children.reduce((prev, cur) => prev + cur.size, 0);
     item.type = constants.DIRECTORY;
     if (onEachDirectory) {
       onEachDirectory(item, path, stats);
@@ -115,9 +102,6 @@ function removeFiles(children) {
 }
 
 function readDirTree(FS, PATH, path, options, onEachFile, onEachDirectory) {
-  if (options && !options.depth) options.depth = 2;
-  else options = { depth: 2 };
-
   let tree = directoryTree(
     FS,
     PATH,

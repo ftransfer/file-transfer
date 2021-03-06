@@ -9,7 +9,9 @@ function devClient() {
   const nextApp = next({
     dev: true,
     dir: clientProject,
-    conf: { distDir: "_client" },
+    conf: {
+      distDir: "_client",
+    },
   });
 
   return new Promise((resolve, reject) => {
@@ -19,12 +21,14 @@ function devClient() {
   });
 }
 
-function prodClient(event) {
+function prodClient() {
   const clientProject = Path.join(app.getAppPath(), "");
   const nextApp = next({
     dev: false,
     dir: clientProject,
-    conf: { distDir: "_client" },
+    conf: {
+      distDir: "_client",
+    },
   });
 
   return new Promise((resolve, reject) => {
@@ -39,6 +43,6 @@ function prodClient(event) {
   });
 }
 
-export default function Client(dev, event) {
-  return dev ? devClient() : prodClient(event);
+export default function Client(dev) {
+  return dev ? devClient() : prodClient();
 }

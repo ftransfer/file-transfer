@@ -4,7 +4,8 @@
     "paths": {
       "~/components/*": ["./components/*"],
       "~/layouts/*": ["./layouts/*"],
-      "~/helpers/*": ["../main/helpers/*"]
+      "~/helpers/*": ["../main/helpers/*"],
+      "~/api/*": ["./api/*"]
     }
   }
 }

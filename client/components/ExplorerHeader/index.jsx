@@ -5,12 +5,12 @@ import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 
 import CreateNewFolderIcon from "@material-ui/icons/CreateNewFolder";
-import HomeIcon from "@material-ui/icons/Home";
 
 import Style from "./Style";
 
 export default function ExplorerHeader(props) {
   const classes = Style();
+
   return (
     <Box display="flex" className={classes.root}>
       <Box className={classes.dir}>
@@ -28,23 +28,21 @@ export default function ExplorerHeader(props) {
           >
             ~
           </Link>
-
-          <Link
-            color="textPrimary"
-            variant="h6"
-            className={classes.breads}
-            onClick={() => {}}
-          >
-            Documents
-          </Link>
-          <Link
-            color="textPrimary"
-            variant="h6"
-            className={classes.breads}
-            onClick={() => {}}
-          >
-            data
-          </Link>
+          {props.pathFile.split("\\").map((v) => {
+            if (v.length > 0)
+              return (
+                <Link
+                  key={v}
+                  color="textPrimary"
+                  variant="h6"
+                  className={classes.breads}
+                  onClick={() => {}}
+                >
+                  {v}
+                </Link>
+              );
+            return null;
+          })}
         </Breadcrumbs>
       </Box>
       <Box>

@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useEffect, Fragment } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
@@ -14,7 +14,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import FolderIcon from "@material-ui/icons/Folder";
 
-import Link from "next/link";
+import { getApi } from "~/api/Api";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -29,13 +29,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ItemWithChild({ child }) {
+function ItemWithChild({ child, changePath, fullPath }) {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
-    <React.Fragment>
-      <ListItem button>
+    <Fragment>
+      <ListItem
+        button
+        onClick={() => {
+          changePath(child.path);
+        }}
+      >
         <ListItemIcon className={classes.icon}>
           <FolderIcon />
         </ListItemIcon>
@@ -54,59 +59,74 @@ function ItemWithChild({ child }) {
       </ListItem>
 
       <Collapse in={open} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding className={classes.nested}>
-          {child.children.map((child) => {
-            return <DirTree dirTree={child} key={child.name} />;
-          })}
+        <List component="div" disablePadding dense className={classes.nested}>
+          <DirTree
+            dirTree={child.children}
+            changePath={changePath}
+            fullPath={fullPath.concat(child.name)}
+          />
         </List>
       </Collapse>
-    </React.Fragment>
+    </Fragment>
   );
 }
 
-function Item({ child }) {
+function Item({ child, changePath, fullPath }) {
   const classes = useStyles();
 
-  if (child.children && child.children.length > 0) {
-    return <ItemWithChild child={child} />;
+  if (child.children.length > 0) {
+    return (
+      <ItemWithChild
+        child={child}
+        changePath={changePath}
+        fullPath={fullPath}
+      />
+    );
   }
   return (
-    <Link href="/post/abc" shallow>
-      <ListItem button key={child.name}>
-        <ListItemIcon className={classes.icon}>
-          <FolderIcon />
-        </ListItemIcon>
-        <ListItemText primary={child.name} />
-      </ListItem>
-    </Link>
+    <ListItem
+      button
+      key={child.name}
+      onClick={() => {
+        changePath(child.path);
+      }}
+    >
+      <ListItemIcon className={classes.icon}>
+        <FolderIcon />
+      </ListItemIcon>
+      <ListItemText primary={child.name} />
+    </ListItem>
   );
 }
 
-function DirTree({ dirTree }) {
+function DirTree({ dirTree, changePath, fullPath }) {
   const classes = useStyles();
 
-  if (dirTree.children && dirTree.children.length > 0)
-    return (
-      <React.Fragment>
-        {dirTree.children.map((child, i) => {
-          return <Item child={child} key={child.name} />;
-        })}
-      </React.Fragment>
-    );
+  if (!dirTree || dirTree.length < 1) return null;
+
   return (
-    <Link href="/post/abc">
-      <ListItem button key={dirTree.name}>
-        <ListItemIcon className={classes.icon}>
-          <FolderIcon />
-        </ListItemIcon>
-        <ListItemText primary={dirTree.name} />
-      </ListItem>
-    </Link>
+    <Fragment>
+      {dirTree.map((v) => (
+        <Item
+          key={v.name}
+          child={v}
+          changePath={changePath}
+          fullPath={fullPath}
+        />
+      ))}
+    </Fragment>
   );
 }
 
 export default function SideBar(props) {
   const classes = useStyles();
+
+  const [dirTree, setDirTree] = useState(null);
+
+  useEffect(async () => {
+    const a = await getApi(window.location.origin).get();
+    setDirTree(a.data);
+  }, []);
 
   return (
     <List
@@ -121,7 +141,13 @@ export default function SideBar(props) {
         </ListSubheader>
       }
     >
-      <DirTree dirTree={props.dirTree} />
+      {dirTree ? (
+        <DirTree
+          dirTree={dirTree.children ? dirTree.children : null}
+          {...props}
+          fullPath={[]}
+        />
+      ) : null}
     </List>
   );
 }

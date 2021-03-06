@@ -6,6 +6,11 @@ import log from "electron-log";
 import Client from "./Client";
 import { Namming } from "../helpers/ipc";
 
+import fs from "fs";
+import path from "path";
+
+import { readDirTree } from "../../lib/tree-directory";
+
 class ClientService {
   constructor(isProd) {
     this.isProd = isProd;
@@ -16,11 +21,16 @@ class ClientService {
   }
 
   async createClient() {
-    this.clientApp = await Client(!this.isProd);
-    return this.clientApp;
+    try {
+      this.clientApp = await Client(!this.isProd);
+    } catch (error) {
+      log.error("failure to reate client: " + error);
+    }
   }
 
   async start(event, arg) {
+    if (!this.clientApp) await this.createClient();
+
     if (!this.clientApp) {
       log.error("clientApp not initialize");
       return;
@@ -29,6 +39,29 @@ class ClientService {
     this.server = Hapi.server({
       port: arg.port,
       host: "0.0.0.0",
+    });
+
+    this.server.route({
+      method: "GET",
+      path: "/__api__/__",
+      handler: async (request, h) => {
+        return readDirTree(fs, path, arg.sourceDir);
+      },
+    });
+
+    this.server.route({
+      method: "GET",
+      path: "/__api__/__/files/{param*}",
+      handler: async (request, h) => {
+        let dirPath = [];
+
+        if (request.params.param) dirPath = request.params.param.split("/");
+        const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
+        console.log(finalpath);
+        const files = fs.readdirSync(finalpath);
+
+        return files;
+      },
     });
 
     this.server.route({
@@ -76,6 +109,7 @@ class ClientService {
     }
 
     await this.server.stop();
+
     this.isServerRunning = false;
     event.reply(Namming.SERVER_STOPED);
   }

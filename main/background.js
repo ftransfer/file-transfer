@@ -22,7 +22,7 @@ let mainWindow;
 (async () => {
   await app.whenReady();
 
-  await clientService.createClient();
+  // await clientService.createClient();
 
   new MainEvent(clientService);
 
