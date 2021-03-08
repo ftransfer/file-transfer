@@ -6,6 +6,7 @@ import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 
 import CreateNewFolderIcon from "@material-ui/icons/CreateNewFolder";
+import HomeIcon from "@material-ui/icons/Home";
 
 import Style from "./Style";
 
@@ -28,7 +29,13 @@ export default function ExplorerHeader(props) {
   }
 
   return (
-    <Box display="flex" className={classes.root}>
+    <Box
+      display="flex"
+      className={classes.root}
+      display="flex"
+      alignItems="center"
+      justifyContent="flex-start"
+    >
       <Box className={classes.dir}>
         <Typography variant="h6" component="h2">
           Directory:
@@ -44,8 +51,11 @@ export default function ExplorerHeader(props) {
               props.changePath("");
             }}
           >
-            ~
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <HomeIcon fontSize="small" />
+            </Box>
           </Link>
+
           {paths.map((v, i) => {
             if (v.length > 0)
               return (

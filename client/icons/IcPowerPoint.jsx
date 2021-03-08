@@ -3,7 +3,7 @@ import SvgIcon from "@material-ui/core/SvgIcon";
 export default function Icon(props) {
   return (
     <SvgIcon viewBox="0 0 512 512" fill="none" {...props}>
-      <g clip-path="url(#clip0)">
+      <g clipPath="url(#clip0)">
         <path
           d="M373.334 117.377C367.443 117.377 362.667 122.153 362.667 128.044V192.044C362.667 197.935 367.443 202.711 373.334 202.711H437.334C443.225 202.711 448.001 197.935 448.001 192.044C448 150.807 414.571 117.377 373.334 117.377Z"
           fill="#FF5722"

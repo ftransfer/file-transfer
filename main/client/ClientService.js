@@ -39,6 +39,11 @@ class ClientService {
     this.server = Hapi.server({
       port: arg.port,
       host: "0.0.0.0",
+      routes: {
+        files: {
+          relativeTo: arg.sourceDir,
+        },
+      },
     });
 
     this.server.route({
@@ -57,11 +62,27 @@ class ClientService {
 
         if (request.params.param) dirPath = request.params.param.split("/");
         const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
-        console.log(finalpath);
+        // console.log(finalpath);
         // const files = fs.readdirSync(finalpath);
         const files = readChildren(fs, path, finalpath, { depth: 1 });
 
         return files;
+      },
+    });
+
+    this.server.route({
+      method: "GET",
+      path: "/__api__/__/file/{param*}",
+      handler: async (request, h) => {
+        let dirPath = [];
+
+        if (request.params.param) dirPath = request.params.param.split("/");
+        const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
+        console.log(finalpath);
+        // const files = fs.readdirSync(finalpath);
+        // const files = readChildren(fs, path, finalpath, { depth: 1 });
+
+        return h.file(request.params.param);
       },
     });
 
@@ -84,6 +105,8 @@ class ClientService {
         }
       },
     });
+
+    await this.server.register(require("@hapi/inert"));
 
     await this.server.start();
 

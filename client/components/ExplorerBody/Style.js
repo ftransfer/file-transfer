@@ -10,9 +10,13 @@ const Style = makeStyles((theme) => ({
   fileName: {
     verticalAlign: "middle",
     display: "inline-flex",
+    cursor: "default",
   },
   icon: {
     marginRight: theme.spacing(1),
+  },
+  backDrop: {
+    zIndex: theme.zIndex.drawer + 1,
   },
 }));
 

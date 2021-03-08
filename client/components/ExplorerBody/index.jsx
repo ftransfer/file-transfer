@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Box from "@material-ui/core/Box";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
@@ -7,24 +8,39 @@ import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import Backdrop from "@material-ui/core/Backdrop";
 import dayjs from "dayjs";
 import prettyBytes from "pretty-bytes";
 
 import FileIcon from "~/components/FileIcon";
+import Contents from "~/components/contents";
 
 import DescriptionIcon from "@material-ui/icons/Description";
 
 import Style from "./Style";
 
-function createData(name, date, type, size) {
-  return { name, date, type, size };
-}
-
 export default function ExplorerBody(props) {
   const classes = Style();
-  const rows = props.files.map((v) =>
-    createData(v, "Mar, 12 2016 16:00", "Folder", " ")
-  );
+  const [showFile, setShowFile] = useState(false);
+  const [file, setFile] = useState(null);
+
+  function onRowClick(row) {
+    if (row.type == "directory") {
+      props.changePath(row.path);
+    } else {
+      setFile({ ...row });
+      openFile();
+    }
+  }
+
+  function openFile() {
+    setShowFile(true);
+  }
+
+  function closeDialog() {
+    setShowFile(false);
+  }
+
   return (
     <Box display="flex" flexDirection="column" className={classes.root}>
       <Typography variant="h5">Files</Typography>
@@ -48,7 +64,7 @@ export default function ExplorerBody(props) {
           </TableHead>
           <TableBody>
             {props.files.map((row) => (
-              <TableRow key={row.name}>
+              <TableRow hover key={row.name} onClick={() => onRowClick(row)}>
                 <TableCell component="th" scope="row">
                   <Typography className={classes.fileName} variant="body1">
                     <FileIcon
@@ -80,6 +96,13 @@ export default function ExplorerBody(props) {
           </TableBody>
         </Table>
       </TableContainer>
+      <Backdrop
+        onClick={closeDialog}
+        open={showFile}
+        className={classes.backDrop}
+      >
+        {showFile ? <Contents sourceDir={props.sourceDir} file={file} /> : null}
+      </Backdrop>
     </Box>
   );
 }

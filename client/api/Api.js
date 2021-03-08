@@ -1,9 +1,11 @@
 import axios from "axios";
 // import { baseUrl } from "../config";
 
+const apiPath = "/__api__/__";
+
 const getApi = (baseUrl) =>
   axios.create({
-    baseURL: `${baseUrl}/__api__/__`,
+    baseURL: `${baseUrl}${apiPath}`,
     timeout: 30000,
     withCredentials: true,
     transformRequest: [(data) => JSON.stringify(data)],
@@ -12,4 +14,10 @@ const getApi = (baseUrl) =>
     },
   });
 
-export { getApi };
+const getApiText = (baseUrl) =>
+  axios.create({
+    baseURL: `${baseUrl}${apiPath}`,
+    timeout: 30000,
+  });
+
+export { getApi, getApiText, apiPath };
