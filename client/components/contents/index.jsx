@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { tomorrowNight } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 import fileType from "../helpers/fileType";
 import languageCode from "../helpers/languageCode";
+
+import GetAppIcon from "@material-ui/icons/GetApp";
+import CancelIcon from "@material-ui/icons/Cancel";
 
 import { getApiText, apiPath } from "~/api/Api";
 
@@ -20,8 +25,56 @@ export default function Content(props) {
     const t = await getApiText(window.location.origin).get(
       `/file${file.path.substring(props.sourceDir.length)}`
     );
-    console.log(t);
+
     setTextFile(t.request.responseText);
+  }
+
+  function download(file) {
+    window.open(
+      window.location.origin +
+        apiPath +
+        "/download" +
+        file.path.substring(props.sourceDir.length)
+    );
+  }
+
+  function DownloadUI(file, child) {
+    return (
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Box display="flex" className={classes.header}>
+          <Box>
+            <Button
+              startIcon={<GetAppIcon />}
+              color="primary"
+              variant="contained"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                download(file);
+              }}
+            >
+              Download
+            </Button>
+          </Box>
+          <Box>
+            <Button
+              variant="contained"
+              color="secondary"
+              className={classes.close}
+              endIcon={<CancelIcon />}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                props.close();
+              }}
+            >
+              Close
+            </Button>
+          </Box>
+        </Box>
+        {child}
+      </Box>
+    );
   }
 
   function renderContent(file) {
@@ -35,19 +88,24 @@ export default function Content(props) {
 
     switch (fileType(file.extension.substring(1).toLowerCase())) {
       case "image":
-        return (
-          <img
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-            style={{ maxHeight: "100%", maxWidth: "100%" }}
-            src={fileUrl}
-          />
+        const ic = (
+          <Box display="flex" justifyContent="center">
+            <img
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+              style={{ maxHeight: "80%", maxWidth: "80%" }}
+              src={fileUrl}
+            />
+          </Box>
         );
+        return DownloadUI(file, ic);
       case "video":
-        return (
+        const vc = (
           <Box
+            display="flex"
+            justifyContent="center"
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -60,16 +118,20 @@ export default function Content(props) {
             />
           </Box>
         );
+        return DownloadUI(file, vc);
+
       case "text":
         getText(file);
-        return (
+        const tc = (
           <Box
+            display="flex"
+            justifyContent="center"
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
             }}
             style={{
-              maxHeight: "90vh",
+              maxHeight: "85vh",
               maxWidth: "95vw",
               overflow: "auto",
             }}
@@ -88,13 +150,10 @@ export default function Content(props) {
             </SyntaxHighlighter>
           </Box>
         );
+        return DownloadUI(file, tc);
+
       default: {
-        window.open(
-          window.location.origin +
-            apiPath +
-            "/download" +
-            file.path.substring(props.sourceDir.length)
-        );
+        download(file);
         props.close();
         return null;
       }
