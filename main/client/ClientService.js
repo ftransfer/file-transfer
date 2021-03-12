@@ -78,11 +78,24 @@ class ClientService {
 
         if (request.params.param) dirPath = request.params.param.split("/");
         const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
-        console.log(finalpath);
-        // const files = fs.readdirSync(finalpath);
-        // const files = readChildren(fs, path, finalpath, { depth: 1 });
 
         return h.file(request.params.param);
+      },
+    });
+
+    this.server.route({
+      method: "GET",
+      path: "/__api__/__/download/{param*}",
+      handler: async (request, h) => {
+        let dirPath = [];
+
+        if (request.params.param) dirPath = request.params.param.split("/");
+        const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
+
+        return h
+          .file(request.params.param)
+          .header("Content-Type", "application/octet-stream")
+          .header("Content-disposition", "attachment");
       },
     });
 

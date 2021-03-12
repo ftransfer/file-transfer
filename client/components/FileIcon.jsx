@@ -10,6 +10,7 @@ import IcJson from "~/icons/IcJson";
 import IcIni from "~/icons/IcIni";
 import IcImage from "~/icons/IcImage";
 import IcVideo from "~/icons/IcVideo";
+import IcRar from "~/icons/IcRar";
 
 export default function Fileicon(props) {
   switch (props.ext.toLowerCase()) {
@@ -32,6 +33,27 @@ export default function Fileicon(props) {
       return <IcJson {...props} />;
     case "ini":
       return <IcIni {...props} />;
+    case "rar":
+    case "zip":
+    case "7z":
+    case "arj":
+    case "bz2":
+    case "cab":
+    case "gz":
+    case "iso":
+    case "lz":
+    case "lzh":
+    case "tar":
+    case "uue":
+    case "xz":
+    case "z":
+    case "zipx":
+    case "001":
+    case "002":
+    case "003":
+    case "004":
+    case "005":
+      return <IcRar {...props} />;
     case "jpg":
     case "jpeg":
     case "jfif":

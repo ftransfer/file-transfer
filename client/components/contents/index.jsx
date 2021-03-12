@@ -88,8 +88,16 @@ export default function Content(props) {
             </SyntaxHighlighter>
           </Box>
         );
-      default:
-        return <Box>Video</Box>;
+      default: {
+        window.open(
+          window.location.origin +
+            apiPath +
+            "/download" +
+            file.path.substring(props.sourceDir.length)
+        );
+        props.close();
+        return null;
+      }
     }
   }
 

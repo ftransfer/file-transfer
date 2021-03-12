@@ -101,7 +101,13 @@ export default function ExplorerBody(props) {
         open={showFile}
         className={classes.backDrop}
       >
-        {showFile ? <Contents sourceDir={props.sourceDir} file={file} /> : null}
+        {showFile ? (
+          <Contents
+            sourceDir={props.sourceDir}
+            file={file}
+            close={closeDialog}
+          />
+        ) : null}
       </Backdrop>
     </Box>
   );
