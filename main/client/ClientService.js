@@ -130,7 +130,6 @@ class ClientService {
 
         if (data.file) {
           let name = data.file.hapi.filename;
-          // const path = __dirname + "/uploads/" + name;
           let dirPath = [];
 
           if (request.params.param) dirPath = request.params.param.split("/");
@@ -161,7 +160,7 @@ class ClientService {
       },
       config: {
         payload: {
-          maxBytes: 5000 * 1024 * 1024, // 5GB
+          maxBytes: 10000 * 1024 * 1024, // 10GB
           timeout: false,
           output: "stream",
           parse: true,

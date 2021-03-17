@@ -28,4 +28,6 @@ const getApiUpload = (baseUrl) =>
     },
   });
 
-export { getApi, getApiText, getApiUpload, apiPath };
+const CancelToken = axios.CancelToken;
+
+export { getApi, getApiText, getApiUpload, CancelToken, apiPath };

@@ -23,9 +23,12 @@ import FileIcon from "~/components/FileIcon";
 import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 
-import { getApiUpload } from "~/api/Api";
+import { getApiUpload, CancelToken } from "~/api/Api";
 
 import Style from "./Style";
+
+let delayedGetFiles;
+let cancelUpload;
 
 export default function FileDrop(props) {
   const classes = Style();
@@ -77,6 +80,9 @@ export default function FileDrop(props) {
     });
 
     const options = {
+      cancelToken: new CancelToken((c) => {
+        cancelUpload = c;
+      }),
       onUploadProgress: (progressEvent) => {
         const { loaded, total } = progressEvent;
         let percent = Math.floor((loaded * 100) / total);
@@ -89,38 +95,55 @@ export default function FileDrop(props) {
 
     getApiUpload(window.location.origin)
       .post(paths.join("/"), imageToUpload, options)
-      .then((res, err) => {
-        setFiles((oldFiles) => {
-          const uIndex = oldFiles.findIndex((v) => v.id == uploading.id);
+      .then((res) => {
+        if (delayedGetFiles) clearTimeout(delayedGetFiles);
 
-          if (uIndex < 0 || oldFiles.length <= uIndex) return oldFiles;
+        delayedGetFiles = setTimeout(() => {
+          props.getFiles();
+        }, 2000);
 
-          const cFile = oldFiles[uIndex];
-          cFile.uploading = false;
-          cFile.isDone = err ? false : true;
-          cFile.isError = err ? true : false;
-
-          oldFiles[uIndex] = cFile;
-
-          const nIndex = uIndex + 1;
-
-          if (oldFiles.length <= nIndex) {
-            setUploading(null);
-            return [...oldFiles];
-          }
-
-          const nFile = oldFiles[nIndex];
-          nFile.uploading = true;
-          oldFiles[nIndex] = nFile;
-
-          setUploading({
-            id: nFile.id,
-            file: nFile.file,
-          });
-
-          return [...oldFiles];
-        });
+        updateFileAfterUpload(false);
+      })
+      .catch((err) => {
+        updateFileAfterUpload(true);
       });
+  }
+
+  function updateFileAfterUpload(isError) {
+    setFiles((oldFiles) => {
+      const uIndex = oldFiles.findIndex((v) => v.id == uploading.id);
+
+      if (uIndex < 0 || oldFiles.length <= uIndex) return oldFiles;
+
+      const cFile = oldFiles[uIndex];
+      cFile.uploading = false;
+      cFile.isDone = !isError;
+      cFile.isError = isError;
+
+      oldFiles[uIndex] = cFile;
+
+      const nIndex = uIndex + 1;
+
+      if (oldFiles.length <= nIndex) {
+        setUploading(null);
+        return [...oldFiles];
+      }
+
+      const nFile = oldFiles[nIndex];
+      nFile.uploading = true;
+      oldFiles[nIndex] = nFile;
+
+      setUploading({
+        id: nFile.id,
+        file: nFile.file,
+      });
+
+      return [...oldFiles];
+    });
+  }
+
+  function abortUpload() {
+    cancelUpload("upload aborted");
   }
 
   function getFileExt(filename) {
@@ -150,6 +173,10 @@ export default function FileDrop(props) {
   });
 
   function removeFile(id) {
+    if (uploading && uploading.id == id) {
+      abortUpload();
+      return;
+    }
     setFiles((oldFiles) => {
       const index = oldFiles.findIndex((v) => v.id == id);
       oldFiles.splice(index, 1);
@@ -221,9 +248,11 @@ export default function FileDrop(props) {
                             value={uploadProgress}
                           />
                         </Box>
-                        <Box className={classes.textPercent}>
-                          {uploadProgress + "%"}
-                        </Box>
+                        {f.uploading ? (
+                          <Box className={classes.textPercent}>
+                            {uploadProgress + "%"}
+                          </Box>
+                        ) : null}
                       </Box>
                     )}
                   </Box>
@@ -250,12 +279,13 @@ export default function FileDrop(props) {
                         onClick={(event) => {
                           event.preventDefault();
                           event.stopPropagation();
+                          removeFile(f.id);
                         }}
                       >
                         <ErrorIcon className={classes.removeButton} />
                       </IconButton>
                     ) : null}
-                    {!f.isDone ? (
+                    {!f.isDone && !f.isError ? (
                       <IconButton
                         size="small"
                         onClick={(event) => {
