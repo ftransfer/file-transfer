@@ -74,11 +74,6 @@ class ClientService {
       method: "GET",
       path: "/__api__/__/file/{param*}",
       handler: async (request, h) => {
-        let dirPath = [];
-
-        if (request.params.param) dirPath = request.params.param.split("/");
-        const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
-
         return h.file(request.params.param);
       },
     });
@@ -87,11 +82,6 @@ class ClientService {
       method: "GET",
       path: "/__api__/__/download/{param*}",
       handler: async (request, h) => {
-        let dirPath = [];
-
-        if (request.params.param) dirPath = request.params.param.split("/");
-        const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
-
         return h
           .file(request.params.param)
           .header("Content-Type", "application/octet-stream")
@@ -116,6 +106,61 @@ class ClientService {
           log.info("error building page: " + error);
           return h.response("Internal Server Error");
         }
+      },
+    });
+
+    this.server.route({
+      method: "POST",
+      path: "/__api__/__/dir/{param*}",
+      handler: async (request, h) => {
+        let dirPath = [];
+
+        if (request.params.param) dirPath = request.params.param.split("/");
+        const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
+        if (!fs.existsSync(finalpath)) fs.mkdirSync(finalpath);
+        return "OK";
+      },
+    });
+
+    this.server.route({
+      method: "POST",
+      path: "/__api__/__/upload/{param*}",
+      handler: (request, h) => {
+        const data = request.payload;
+
+        if (data.file) {
+          const name = data.file.hapi.filename;
+          // const path = __dirname + "/uploads/" + name;
+          let dirPath = [];
+
+          if (request.params.param) dirPath = request.params.param.split("/");
+          const finalpath =
+            arg.sourceDir + "\\" + dirPath.join("\\") + "\\" + name;
+          console.log(finalpath);
+          const file = fs.createWriteStream(finalpath);
+
+          file.on("error", (err) => console.error(err));
+
+          data.file.pipe(file);
+
+          data.file.on("end", (err) => {
+            const ret = {
+              filename: data.file.hapi.filename,
+              headers: data.file.hapi.headers,
+            };
+            return JSON.stringify(ret);
+          });
+        }
+        return "ok";
+      },
+      config: {
+        payload: {
+          maxBytes: 5000 * 1024 * 1024, // 5GB
+          timeout: false,
+          output: "stream",
+          parse: true,
+          multipart: true,
+        },
       },
     });
 

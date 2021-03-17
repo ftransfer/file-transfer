@@ -20,4 +20,12 @@ const getApiText = (baseUrl) =>
     timeout: 30000,
   });
 
-export { getApi, getApiText, apiPath };
+const getApiUpload = (baseUrl) =>
+  axios.create({
+    baseURL: `${baseUrl}${apiPath}/upload`,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+export { getApi, getApiText, getApiUpload, apiPath };
