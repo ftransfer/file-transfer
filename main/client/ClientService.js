@@ -129,14 +129,20 @@ class ClientService {
         const data = request.payload;
 
         if (data.file) {
-          const name = data.file.hapi.filename;
+          let name = data.file.hapi.filename;
           // const path = __dirname + "/uploads/" + name;
           let dirPath = [];
 
           if (request.params.param) dirPath = request.params.param.split("/");
-          const finalpath =
+          let finalpath =
             arg.sourceDir + "\\" + dirPath.join("\\") + "\\" + name;
-          console.log(finalpath);
+
+          if (fs.existsSync(finalpath)) {
+            const ext = path.extname(finalpath);
+            name = name.slice(0, -1 * ext.length) + "(1)" + ext;
+            finalpath = arg.sourceDir + "\\" + dirPath.join("\\") + "\\" + name;
+          }
+
           const file = fs.createWriteStream(finalpath);
 
           file.on("error", (err) => console.error(err));
