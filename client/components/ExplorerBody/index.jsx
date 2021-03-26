@@ -9,6 +9,9 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Backdrop from "@material-ui/core/Backdrop";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+
 import dayjs from "dayjs";
 import prettyBytes from "pretty-bytes";
 
@@ -23,6 +26,15 @@ export default function ExplorerBody(props) {
   const classes = Style();
   const [showFile, setShowFile] = useState(false);
   const [file, setFile] = useState(null);
+  const [anchorContext, setAnchorContext] = useState(null);
+
+  const openFileContext = (event) => {
+    setAnchorContext({ mouseX: event.clientX - 2, mouseY: event.clientY - 4 });
+  };
+
+  const closeFileContext = () => {
+    setAnchorContext(null);
+  };
 
   function onRowClick(row) {
     if (row.type == "directory") {
@@ -64,7 +76,16 @@ export default function ExplorerBody(props) {
           </TableHead>
           <TableBody>
             {props.files.map((row) => (
-              <TableRow hover key={row.name} onClick={() => onRowClick(row)}>
+              <TableRow
+                hover
+                key={row.name}
+                onClick={() => onRowClick(row)}
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  openFileContext(event);
+                }}
+              >
                 <TableCell component="th" scope="row">
                   <Typography className={classes.fileName} variant="body1">
                     <FileIcon
@@ -96,6 +117,24 @@ export default function ExplorerBody(props) {
           </TableBody>
         </Table>
       </TableContainer>
+      <Menu
+        id="simple-menu"
+        anchorReference="anchorPosition"
+        anchorPosition={
+          anchorContext
+            ? anchorContext.mouseY !== null && anchorContext.mouseX !== null
+              ? { top: anchorContext.mouseY, left: anchorContext.mouseX }
+              : undefined
+            : undefined
+        }
+        keepMounted
+        open={Boolean(anchorContext)}
+        onClose={closeFileContext}
+      >
+        <MenuItem onClick={closeFileContext}>Profile</MenuItem>
+        <MenuItem onClick={closeFileContext}>My account</MenuItem>
+        <MenuItem onClick={closeFileContext}>Logout</MenuItem>
+      </Menu>
       <Backdrop
         onClick={closeDialog}
         open={showFile}

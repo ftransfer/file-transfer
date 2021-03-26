@@ -8,11 +8,24 @@ const Style = makeStyles((theme) =>
     dirInfo: {
       marginLeft: theme.spacing(1),
     },
-    desc: {
-      marginTop: theme.spacing(2),
-    },
     buttonChange: {
       marginTop: theme.spacing(1),
+    },
+    opt: {
+      marginTop: theme.spacing(2),
+
+      marginLeft: theme.spacing(5),
+      marginRight: theme.spacing(5),
+    },
+    optItem: {
+      marginTop: theme.spacing(1),
+    },
+    optTitle: {
+      fontWeight: 700,
+    },
+    optDesc: {
+      opacity: 0.6,
+      fontWeight: 200,
     },
   })
 );

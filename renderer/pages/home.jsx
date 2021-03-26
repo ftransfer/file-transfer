@@ -31,14 +31,17 @@ const Home = () => {
   const [serverAddresses, setServerAddresses] = useState([]);
   const [port, setPort] = useState(3000);
   const [sourceDir, setSourceDir] = useState("...");
-  const [uploadDir, setUploadDir] = useState("...");
+  const [opts, setOtps] = useState({
+    receiveFile: true,
+    modifyFiles: false,
+    deleteFiles: false,
+  });
 
   const classes = HomeStyle();
 
   useEffect(() => {
     ipcRenderer.once(Namming.ON_DEFAULT_DIR, (event, arg) => {
       setSourceDir(arg.sourceDir);
-      setUploadDir(arg.uploadDir);
       if (arg.isServerRunning) {
         setServerAddresses(arg.addresses);
         setServerCreated(true);
@@ -50,11 +53,7 @@ const Home = () => {
 
   function openDir(target) {
     ipcRenderer.once(Namming.DIR_SELECTED, (event, arg) => {
-      if (arg.arg.target === "source") {
-        setSourceDir(arg.path);
-      } else if (arg.arg.target === "upload") {
-        setUploadDir(arg.path);
-      }
+      setSourceDir(arg.path);
     });
     ipcRenderer.send(Namming.SELECT_DIR, { target });
   }
@@ -73,7 +72,6 @@ const Home = () => {
     ipcRenderer.send(Namming.START_SERVER, {
       port,
       sourceDir,
-      uploadDir,
     });
   }
 
@@ -90,7 +88,6 @@ const Home = () => {
     ipcRenderer.send(Namming.STOP_SERVER, {
       port,
       sourceDir,
-      uploadDir,
     });
   }
 
@@ -176,15 +173,8 @@ const Home = () => {
           target="source"
           openDir={openDir}
           canChange={canChangeSettings}
-          desc="The source directory you want to share. All child directories and
-              files are displayed."
-        />
-        <DirectoryInfo
-          title="Receiving Directory"
-          path={uploadDir || ""}
-          target="upload"
-          openDir={openDir}
-          canChange={canChangeSettings}
+          opts={opts}
+          changeOpts={(newOtps) => setOtps(newOtps)}
           desc="The source directory you want to share. All child directories and
               files are displayed."
         />

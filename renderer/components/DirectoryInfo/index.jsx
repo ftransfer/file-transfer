@@ -32,8 +32,14 @@ function DeirectoryInfo(props) {
     setPath(props.path);
   }, [props.path]);
 
+  function changeOpts(opt) {
+    const newOpts = { ...props.opts };
+    newOpts[opt] = !newOpts[opt];
+    props.changeOpts(newOpts);
+  }
+
   return (
-    <Grid item xs={11} sm={5} md={5} lg={4}>
+    <Grid item xs={11} sm={10} md={8} lg={7}>
       <Paper className={classes.root}>
         <Box display="flex" flexDirection="column">
           <Box display="flex" alignItems="center">
@@ -72,29 +78,108 @@ function DeirectoryInfo(props) {
                   )}
                 </Box>
               </Tooltip>
+              <Typography variant="body2" className={classes.optDesc}>
+                {props.desc}
+              </Typography>
             </Box>
             <Box>
-              <Switch color="primary" checked={props.target === "source"} />
+              <Button
+                disabled={!props.canChange}
+                variant="outlined"
+                startIcon={<SettingsIcon />}
+                onClick={() => {
+                  props.openDir(props.target);
+                }}
+              >
+                Change
+              </Button>
             </Box>
           </Box>
-          <Box className={classes.desc}>
-            <Typography variant="body2">{props.desc}</Typography>
-          </Box>
-          <Box
-            display="flex"
-            justifyContent="center"
-            className={classes.buttonChange}
-          >
-            <Button
-              disabled={!props.canChange}
-              variant="outlined"
-              startIcon={<SettingsIcon />}
-              onClick={() => {
-                props.openDir(props.target);
-              }}
+
+          <Box display="flex" className={classes.opt} flexDirection="column">
+            <Box display="flex" flexGrow={1} alignItems="center">
+              <Box display="flex" flexDirection="column" flexGrow={1}>
+                <Box>
+                  <Typography fontSize={14} className={classes.optTitle}>
+                    Reveice Files
+                  </Typography>
+                </Box>
+                <Box className={classes.optDesc}>
+                  Client can upload file to the Source Directory or sub
+                  directory
+                </Box>
+              </Box>
+              <Box
+                flexGrow={1}
+                display="flex"
+                alignItems="flex-end"
+                justifyContent="flex-end"
+              >
+                <Switch
+                  color="primary"
+                  checked={props.opts.receiveFile}
+                  onClick={() => changeOpts("receiveFile")}
+                />
+              </Box>
+            </Box>
+            <Box
+              display="flex"
+              flexGrow={1}
+              alignItems="center"
+              className={classes.optItem}
             >
-              Change
-            </Button>
+              <Box display="flex" flexDirection="column" flexGrow={1}>
+                <Box>
+                  <Typography fontSize={14} className={classes.optTitle}>
+                    Modify Files
+                  </Typography>
+                </Box>
+                <Box className={classes.optDesc}>
+                  Client can rename files or directories
+                </Box>
+              </Box>
+              <Box
+                flexGrow={1}
+                display="flex"
+                alignItems="flex-end"
+                justifyContent="flex-end"
+              >
+                <Switch
+                  color="primary"
+                  checked={props.opts.modifyFiles}
+                  onClick={() => changeOpts("modifyFiles")}
+                />
+              </Box>
+            </Box>
+            <Box
+              display="flex"
+              flexGrow={1}
+              alignItems="center"
+              className={classes.optItem}
+            >
+              <Box display="flex" flexDirection="column" flexGrow={1}>
+                <Box>
+                  <Typography fontSize={14} className={classes.optTitle}>
+                    Delete Files
+                  </Typography>
+                </Box>
+                <Box className={classes.optDesc}>
+                  Client can delete files or directories
+                </Box>
+              </Box>
+              <Box
+                flexGrow={1}
+                display="flex"
+                alignItems="flex-end"
+                justifyContent="flex-end"
+              >
+                <Switch
+                  color="primary"
+                  checked={props.opts.deleteFiles}
+                  onClick={() => changeOpts("deleteFiles")}
+                />
+              </Box>
+            </Box>
           </Box>
         </Box>
       </Paper>
