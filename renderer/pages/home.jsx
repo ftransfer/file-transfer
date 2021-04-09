@@ -16,6 +16,8 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import CastConnectedIcon from "@material-ui/icons/CastConnected";
 import ErrorIcon from "@material-ui/icons/Error";
 
+import FtIcon from "../icons/FtIcon";
+
 import { ipcRenderer } from "electron";
 import DirectoryInfo from "~/components/DirectoryInfo";
 
@@ -32,6 +34,7 @@ const Home = () => {
   const [port, setPort] = useState(3000);
   const [sourceDir, setSourceDir] = useState("...");
   const [opts, setOtps] = useState({
+    viewFiles: true,
     receiveFile: true,
     modifyFiles: false,
     deleteFiles: false,
@@ -158,27 +161,27 @@ const Home = () => {
     >
       <Box
         display="flex"
-        justifyContent="center"
+        justifyContent="flex-start"
         alignItems="center"
-        className={classes.title}
+        className={classes.header}
       >
-        <Typography variant="h3" component="h1">
+        <FtIcon style={{ width: 50, height: 50 }} />
+        <Typography variant="h3" component="h1" className={classes.title}>
           File Transfer
         </Typography>
       </Box>
-      <Grid container spacing={2} justify="center">
-        <DirectoryInfo
-          title="Source Directory"
-          path={sourceDir || ""}
-          target="source"
-          openDir={openDir}
-          canChange={canChangeSettings}
-          opts={opts}
-          changeOpts={(newOtps) => setOtps(newOtps)}
-          desc="The source directory you want to share. All child directories and
+
+      <DirectoryInfo
+        title="Source Directory"
+        path={sourceDir || ""}
+        target="source"
+        openDir={openDir}
+        canChange={canChangeSettings}
+        opts={opts}
+        changeOpts={(newOtps) => setOtps(newOtps)}
+        desc="The source directory you want to share. All child directories and
               files are displayed."
-        />
-      </Grid>
+      />
       <Box className={classes.startButtonContainer}>
         {isServerProsses ? (
           <CircularProgress />

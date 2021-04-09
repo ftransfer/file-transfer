@@ -11,9 +11,14 @@ const Style = makeStyles((theme) =>
       height: theme.spacing(50),
       padding: theme.spacing(2),
     },
+    header: {
+      width: "100%",
+      marginLeft: theme.spacing(4),
+      marginTop: theme.spacing(1),
+    },
     title: {
-      marginTop: theme.spacing(2),
-      marginBottom: theme.spacing(2),
+      fontSize: 32,
+      marginLeft: theme.spacing(2),
     },
     startButton: {
       background: theme.palette.primary.main,
@@ -24,7 +29,7 @@ const Style = makeStyles((theme) =>
       color: "#fff",
     },
     startButtonContainer: {
-      marginTop: theme.spacing(5),
+      marginTop: theme.spacing(1),
     },
     warningInfo: {
       marginTop: theme.spacing(3),

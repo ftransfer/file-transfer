@@ -4,6 +4,10 @@ const Style = makeStyles((theme) =>
   createStyles({
     root: {
       padding: theme.spacing(1),
+      marginTop: theme.spacing(3),
+    },
+    paper: {
+      borderRadius: 8,
     },
     dirInfo: {
       marginLeft: theme.spacing(1),
@@ -12,13 +16,14 @@ const Style = makeStyles((theme) =>
       marginTop: theme.spacing(1),
     },
     opt: {
-      marginTop: theme.spacing(2),
-
-      marginLeft: theme.spacing(5),
-      marginRight: theme.spacing(5),
+      marginTop: theme.spacing(1),
+      padding: theme.spacing(2),
     },
     optItem: {
-      marginTop: theme.spacing(1),
+      paddingLeft: theme.spacing(2),
+      paddingRight: theme.spacing(2),
+      paddingTop: theme.spacing(1),
+      paddingBottom: theme.spacing(1),
     },
     optTitle: {
       fontWeight: 700,
@@ -26,6 +31,9 @@ const Style = makeStyles((theme) =>
     optDesc: {
       opacity: 0.6,
       fontWeight: 200,
+    },
+    sourceContainer: {
+      width: "100%",
     },
   })
 );
