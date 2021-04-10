@@ -62,9 +62,7 @@ class ClientService {
 
         if (request.params.param) dirPath = request.params.param.split("/");
         const finalpath = arg.sourceDir + "\\" + dirPath.join("\\");
-        // console.log(finalpath);
-        // const files = fs.readdirSync(finalpath);
-        const files = readChildren(fs, path, finalpath, { depth: 1 });
+        const files = readChildren(fs, path, finalpath, { ...arg, depth: 1 });
 
         return files;
       },

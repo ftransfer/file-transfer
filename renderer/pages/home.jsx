@@ -75,6 +75,7 @@ const Home = () => {
     ipcRenderer.send(Namming.START_SERVER, {
       port,
       sourceDir,
+      opts,
     });
   }
 
