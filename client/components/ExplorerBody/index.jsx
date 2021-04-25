@@ -58,7 +58,6 @@ export default function ExplorerBody(props) {
 
   return (
     <Box display="flex" flexDirection="column" className={classes.root}>
-      <Typography variant="h5">Files</Typography>
       <TableContainer component={Paper} className={classes.content}>
         <Table className={classes.table} aria-label="Files" size="small">
           <TableHead>

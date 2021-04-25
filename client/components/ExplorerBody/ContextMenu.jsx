@@ -49,8 +49,12 @@ export default function ContextMenu(props) {
       {file?.type != "directory" ? (
         <MenuItem onClick={download}>Download</MenuItem>
       ) : null}
-      <MenuItem onClick={props.closeFileContext}>Rename</MenuItem>
-      <MenuItem onClick={props.closeFileContext}>Delete</MenuItem>
+      {props.opts.modifyFiles ? (
+        <MenuItem onClick={props.closeFileContext}>Rename (soon)</MenuItem>
+      ) : null}
+      {props.opts.deleteFiles ? (
+        <MenuItem onClick={props.closeFileContext}>Delete (soon)</MenuItem>
+      ) : null}
     </Fragment>
   );
 }

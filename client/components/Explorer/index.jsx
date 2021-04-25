@@ -27,7 +27,10 @@ export default function Explorer(props) {
     <Box display="flex" flexDirection="column">
       <ExplorerHeader {...props} getFiles={getFiles} />
       <Divider />
-      <FileDrop {...props} getFiles={getFiles} />
+      {props.opts.receiveFile ? (
+        <FileDrop {...props} getFiles={getFiles} />
+      ) : null}
+
       <ExplorerBody files={files} {...props} />
     </Box>
   );

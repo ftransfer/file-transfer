@@ -100,17 +100,20 @@ export default function ExplorerHeader(props) {
           })}
         </Breadcrumbs>
       </Box>
-      <Box>
-        <Button
-          variant="contained"
-          color="primary"
-          className={classes.button}
-          startIcon={<CreateNewFolderIcon />}
-          onClick={() => setCreateDirOpen(true)}
-        >
-          Add Folder
-        </Button>
-      </Box>
+      {props.opts.receiveFile ? (
+        <Box>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            startIcon={<CreateNewFolderIcon />}
+            onClick={() => setCreateDirOpen(true)}
+          >
+            Add Folder
+          </Button>{" "}
+        </Box>
+      ) : null}
+
       <Dialog
         open={createDirOpen}
         onClose={closeCreateDir}
