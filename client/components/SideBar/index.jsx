@@ -74,7 +74,7 @@ function ItemWithChild({ child, changePath, fullPath }) {
 function Item({ child, changePath, fullPath }) {
   const classes = useStyles();
 
-  if (child.children.length > 0) {
+  if (child.children && child.children.length > 0) {
     return (
       <ItemWithChild
         child={child}
