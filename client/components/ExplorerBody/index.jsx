@@ -22,10 +22,13 @@ import DescriptionIcon from "@material-ui/icons/Description";
 
 import Style from "./Style";
 
+import ContextMenu from "./ContextMenu";
+
 export default function ExplorerBody(props) {
   const classes = Style();
   const [showFile, setShowFile] = useState(false);
   const [file, setFile] = useState(null);
+  const [fileContext, setFileContext] = useState(null);
   const [anchorContext, setAnchorContext] = useState(null);
 
   const openFileContext = (event) => {
@@ -81,6 +84,7 @@ export default function ExplorerBody(props) {
                 key={row.name}
                 onClick={() => onRowClick(row)}
                 onContextMenu={(event) => {
+                  setFileContext(row);
                   event.preventDefault();
                   event.stopPropagation();
                   openFileContext(event);
@@ -131,9 +135,12 @@ export default function ExplorerBody(props) {
         open={Boolean(anchorContext)}
         onClose={closeFileContext}
       >
-        <MenuItem onClick={closeFileContext}>Profile</MenuItem>
-        <MenuItem onClick={closeFileContext}>My account</MenuItem>
-        <MenuItem onClick={closeFileContext}>Logout</MenuItem>
+        <ContextMenu
+          closeFileContext={closeFileContext}
+          file={fileContext}
+          showFile={onRowClick}
+          {...props}
+        />
       </Menu>
       <Backdrop
         onClick={closeDialog}
