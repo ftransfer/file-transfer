@@ -16,8 +16,12 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import CastConnectedIcon from "@material-ui/icons/CastConnected";
 import ErrorIcon from "@material-ui/icons/Error";
 
+import FtIcon from "../icons/FtIcon";
+
 import { ipcRenderer } from "electron";
 import DirectoryInfo from "~/components/DirectoryInfo";
+
+import { Namming } from "~/helpers/index";
 
 import HomeStyle from "../styles/homeStyles";
 
@@ -29,38 +33,38 @@ const Home = () => {
   const [serverAddresses, setServerAddresses] = useState([]);
   const [port, setPort] = useState(3000);
   const [sourceDir, setSourceDir] = useState("...");
-  const [uploadDir, setUploadDir] = useState("...");
+  const [opts, setOtps] = useState({
+    viewFiles: true,
+    receiveFile: true,
+    modifyFiles: false,
+    deleteFiles: false,
+  });
 
   const classes = HomeStyle();
 
   useEffect(() => {
-    ipcRenderer.once("on-default-directory", (event, arg) => {
+    ipcRenderer.once(Namming.ON_DEFAULT_DIR, (event, arg) => {
       setSourceDir(arg.sourceDir);
-      setUploadDir(arg.uploadDir);
       if (arg.isServerRunning) {
         setServerAddresses(arg.addresses);
         setServerCreated(true);
         setCanChangeSettings(false);
       } else setCanChangeSettings(true);
     });
-    ipcRenderer.send("request-default-directory");
+    ipcRenderer.send(Namming.REQ_DEFAULT_DIR);
   }, []);
 
   function openDir(target) {
-    ipcRenderer.once("dir-selected", (event, arg) => {
-      if (arg.arg.target === "source") {
-        setSourceDir(arg.path);
-      } else if (arg.arg.target === "upload") {
-        setUploadDir(arg.path);
-      }
+    ipcRenderer.once(Namming.DIR_SELECTED, (event, arg) => {
+      setSourceDir(arg.path);
     });
-    ipcRenderer.send("select-dir", { target });
+    ipcRenderer.send(Namming.SELECT_DIR, { target });
   }
 
   function startServer() {
     setCanChangeSettings(false);
     setServerProsses(true);
-    ipcRenderer.once("server-created", (event, arg) => {
+    ipcRenderer.once(Namming.SERVER_CREATED, (event, arg) => {
       setServerAddresses(arg);
       setTimeout(() => {
         setServerCreated(true);
@@ -68,16 +72,16 @@ const Home = () => {
       }, 1000);
     });
 
-    ipcRenderer.send("start-server", {
+    ipcRenderer.send(Namming.START_SERVER, {
       port,
       sourceDir,
-      uploadDir,
+      opts,
     });
   }
 
   function stopServer() {
     setServerProsses(true);
-    ipcRenderer.once("server-stoped", (event, arg) => {
+    ipcRenderer.once(Namming.SERVER_STOPED, (event, arg) => {
       setTimeout(() => {
         setServerCreated(false);
         setServerProsses(false);
@@ -85,10 +89,9 @@ const Home = () => {
       }, 1000);
     });
 
-    ipcRenderer.send("stop-server", {
+    ipcRenderer.send(Namming.STOP_SERVER, {
       port,
       sourceDir,
-      uploadDir,
     });
   }
 
@@ -150,95 +153,82 @@ const Home = () => {
   );
 
   return (
-    <Fragment>
-      <Head>
-        <title>File Transfer</title>
-      </Head>
-
+    <Box
+      className={classes.root}
+      display="flex"
+      flexDirection="column"
+      justifyContent="flex-start"
+      alignItems="center"
+    >
       <Box
-        className={classes.root}
         display="flex"
-        flexDirection="column"
         justifyContent="flex-start"
         alignItems="center"
+        className={classes.header}
       >
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          className={classes.title}
-        >
-          <Typography variant="h3" component="h1">
-            File Transfer
-          </Typography>
-        </Box>
-        <Grid container spacing={2} justify="center">
-          <DirectoryInfo
-            title="Source Directory"
-            path={sourceDir || ""}
-            target="source"
-            openDir={openDir}
-            canChange={canChangeSettings}
-            desc="The source directory you want to share. All child directories and
-              files are displayed."
-          />
-          <DirectoryInfo
-            title="Receiving Directory"
-            path={uploadDir || ""}
-            target="upload"
-            openDir={openDir}
-            canChange={canChangeSettings}
-            desc="The source directory you want to share. All child directories and
-              files are displayed."
-          />
-        </Grid>
-        <Box className={classes.startButtonContainer}>
-          {isServerProsses ? (
-            <CircularProgress />
-          ) : (
-            <Fab
-              variant="extended"
-              color="primary"
-              className={
-                isServerCreated ? classes.endButton : classes.startButton
-              }
-              onClick={() => {
-                isServerCreated ? stopServer() : startServer();
-              }}
-            >
-              <CastConnectedIcon style={{ marginRight: 12 }} />
-              {isServerCreated ? "Stop" : "Start"}
-            </Fab>
-          )}
-        </Box>
-        {isServerCreated ? serverInfo : null}
-        <Box
-          alignSelf="flex-start"
-          flexGrow={1}
-          display="flex"
-          flexDirection="column"
-          justifyContent="flex-end"
-          alignItems="center"
-          className={classes.portContainer}
-        >
-          <TextField
-            id="outlined-basic"
-            label="port"
-            value={port}
-            style={{ width: 80 }}
-            variant="outlined"
-            size="small"
-            disabled={!canChangeSettings}
-            onChange={(event) => {
-              onPortChange(event.target.value);
-            }}
-            onBlur={(event) => {
-              fixPort(event.target.value);
-            }}
-          />
-        </Box>
+        <FtIcon style={{ width: 50, height: 50 }} />
+        <Typography variant="h3" component="h1" className={classes.title}>
+          File Transfer
+        </Typography>
       </Box>
-    </Fragment>
+
+      <DirectoryInfo
+        title="Source Directory"
+        path={sourceDir || ""}
+        target="source"
+        openDir={openDir}
+        canChange={canChangeSettings}
+        opts={opts}
+        changeOpts={(newOtps) => setOtps(newOtps)}
+        desc="The source directory you want to share. All child directories and
+              files are displayed."
+      />
+      <Box className={classes.startButtonContainer}>
+        {isServerProsses ? (
+          <CircularProgress />
+        ) : (
+          <Fab
+            variant="extended"
+            color="primary"
+            className={
+              isServerCreated ? classes.endButton : classes.startButton
+            }
+            onClick={() => {
+              isServerCreated ? stopServer() : startServer();
+            }}
+          >
+            <CastConnectedIcon style={{ marginRight: 12 }} />
+            {isServerCreated ? "Stop" : "Start"}
+          </Fab>
+        )}
+      </Box>
+      {isServerCreated ? serverInfo : null}
+      <Box
+        alignSelf="flex-start"
+        flexGrow={1}
+        display="flex"
+        flexDirection="column"
+        justifyContent="flex-end"
+        alignItems="center"
+        className={classes.portContainer}
+      >
+        <TextField
+          id="outlined-basic"
+          label="port"
+          value={port}
+          style={{ width: 80 }}
+          variant="outlined"
+          size="small"
+          disabled={!canChangeSettings}
+          onChange={(event) => {
+            onPortChange(event.target.value);
+          }}
+          onBlur={(event) => {
+            fixPort(event.target.value);
+          }}
+        />
+      </Box>
+    </Box>
   );
 };
 
