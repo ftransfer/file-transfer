@@ -8,9 +8,7 @@ export default class Db {
   }
 
   saveSourceDir(dir) {
-    console.log("saved", dir, app.getPath("userData"));
     this.store.set("sourceDir", dir);
-    console.log("saved", this.store.get("asd"));
   }
 
   getSourceDir() {
