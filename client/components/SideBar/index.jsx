@@ -33,6 +33,16 @@ function ItemWithChild({ child, changePath, fullPath }) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
+  const [dirTree, setDirTree] = useState(null);
+
+  async function getDirTree() {
+    const a = await getApi(window.location.origin).get(
+      `/${fullPath.join("/")}${fullPath.length > 0 ? "/" : ""}${child.name}`
+    );
+    setDirTree(a.data);
+    setOpen(!open);
+  }
+
   return (
     <Fragment>
       <ListItem
@@ -50,23 +60,25 @@ function ItemWithChild({ child, changePath, fullPath }) {
             size="small"
             className={classes.arrow}
             onClick={() => {
-              setOpen(!open);
+              if (!open) getDirTree();
+              else setOpen(!open);
             }}
           >
             {open ? <ExpandMoreIcon /> : <ChevronRightIcon />}
           </IconButton>
         </ListItemSecondaryAction>
       </ListItem>
-
-      <Collapse in={open} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding dense className={classes.nested}>
-          <DirTree
-            dirTree={child.children}
-            changePath={changePath}
-            fullPath={fullPath.concat(child.name)}
-          />
-        </List>
-      </Collapse>
+      {dirTree ? (
+        <Collapse in={open} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding dense className={classes.nested}>
+            <DirTree
+              dirTree={dirTree}
+              changePath={changePath}
+              fullPath={fullPath.concat(child.name)}
+            />
+          </List>
+        </Collapse>
+      ) : null}
     </Fragment>
   );
 }
@@ -74,7 +86,7 @@ function ItemWithChild({ child, changePath, fullPath }) {
 function Item({ child, changePath, fullPath }) {
   const classes = useStyles();
 
-  if (child.children && child.children.length > 0) {
+  if (child.hasDirChild) {
     return (
       <ItemWithChild
         child={child}
@@ -141,13 +153,7 @@ export default function SideBar(props) {
         </ListSubheader>
       }
     >
-      {dirTree ? (
-        <DirTree
-          dirTree={dirTree.children ? dirTree.children : null}
-          {...props}
-          fullPath={[]}
-        />
-      ) : null}
+      {dirTree ? <DirTree dirTree={dirTree} {...props} fullPath={[]} /> : null}
     </List>
   );
 }
